@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Counting Game with LLM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding-top: 20px;
+            height: auto;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 80%;
+            max-width: 640px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        input[type="button"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        input[type="button"]:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #output {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            min-height: 100px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #wordDisplay {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        #scoreDisplay {
+            font-size: 25px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Word Counting Game with LLM</h1>
+        <div id="role"></div>
+        <div id="wordDisplay">Target word is: <span id="targetWord">Waiting for word...</span></div>
+        <input type="button" id="requestWordButton" value="Request Word" /><br /> <!-- 新しいボタン -->
+        <label for="input">Enter a text to make the LLM say the word:</label><br />
+        <textarea id="input" placeholder="Type your text here..."></textarea><br />
+        <input type="button" id="submitText" value="Submit Text" disabled /><br />
+        <br />
+        <label for="output">LLM's Response:</label><br />
+        <div id="output"></div><br />
+        <div id="countResult"></div>
+        <input type="button" id="reslutWordButton" value="Versus!" /><br />
+        <div id="scoreDisplay"> <span id="scoreWord"></span></div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="index.js"></script>
+</body>
+</html>
