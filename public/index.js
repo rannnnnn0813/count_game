@@ -7,13 +7,16 @@ const countResult = document.getElementById('countResult');
 const roleElement = document.getElementById('role');
 const wordDisplay = document.getElementById('targetWord');
 const requestWordButton = document.getElementById('requestWordButton'); // 新しいボタン
+const loadModelInput = document.getElementById('load_model'); // モデルファイル読み込み用の新しいボタン
+const reslutWordButton = document.getElementById('reslutWordButton'); // 追加
+const scoreDisplay = document.getElementById('scoreWord'); // 追加
 
-const modelFileName = 'gemma-2b-it-gpu-int4.bin';
 const socket = io();
 
 let playerRole;
 let targetWord;
 let myscore = 0;
+let modelUrl;
 
 socket.emit('requestRole');
 
@@ -36,25 +39,19 @@ socket.on('newWord', (word) => {
     countResult.textContent = '';
 });
 
-socket.on('Scoreshare', (scorereslut) => {
-    console.log(`Score resluts received: ${scorereslut}`); // デバッグメッセージ
-    //targetWord = word;
-    //wordDisplay.textContent = targetWord;
-    //output.textContent = '';
-    //countResult.textContent = '';
+socket.on('Scoreshare', (scoreresult) => {
+    console.log(`Score results received: ${scoreresult}`); // デバッグメッセージ
     console.log('myscore');
     console.log(myscore);
     console.log('scoreresult');
-    console.log(scorereslut);
+    console.log(scoreresult);
     let strtmp;
-    if (myscore >= scorereslut) {
+    if (myscore >= scoreresult) {
         strtmp = 'You Are Winner!';
     } else {
         strtmp = 'You Are Loser...';
     }
-    scoreDisplay.textContent = `${strtmp} Highest score: ${scorereslut}`;
-    //output.textContent = '';
-    //countResult.textContent = '';
+    scoreDisplay.textContent = `${strtmp} Highest score: ${scoreresult}`;
 });
 
 requestWordButton.onclick = () => {
@@ -63,7 +60,7 @@ requestWordButton.onclick = () => {
 };
 
 reslutWordButton.onclick = () => {
-    console.log('Reslut Word Button Clicked'); // デバッグメッセージ
+    console.log('Result Word Button Clicked'); // デバッグメッセージ
     socket.emit('Scoreshare');
 };
 
@@ -73,7 +70,18 @@ submitText.onclick = () => {
     runInference(playerText);
 };
 
-
+// モデルファイル読み込みのイベントリスナーを追加
+loadModelInput.addEventListener('change', function () {
+    const file = this.files[0];
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const arrayBuffer = e.target.result;
+        const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
+        modelUrl = URL.createObjectURL(blob);
+        console.log('Model loaded');
+    };
+    reader.readAsArrayBuffer(file);
+});
 
 async function runInference(playerText) {
     const genaiFileset = await FilesetResolver.forGenAiTasks(
@@ -90,13 +98,11 @@ async function runInference(playerText) {
             console.log('word count finished'); // デバッグメッセー
             socket.emit('sendResult', wordCount);
             myscore = wordCount;
-
-            
         }
     }
 
     LlmInference.createFromOptions(genaiFileset, {
-        baseOptions: { modelAssetPath: modelFileName },
+        baseOptions: { modelAssetPath: modelUrl },
     })
     .then(llm => {
         llmInference = llm;
