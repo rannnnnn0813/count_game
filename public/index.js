@@ -79,6 +79,7 @@ loadModelInput.addEventListener('change', function () {
         const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
         modelUrl = URL.createObjectURL(blob);
         console.log('Model loaded');
+        submitText.disabled = false; // モデルがロードされたらボタンを有効にする
     };
     reader.readAsArrayBuffer(file);
 });
@@ -101,16 +102,15 @@ async function runInference(playerText) {
         }
     }
 
-    LlmInference.createFromOptions(genaiFileset, {
-        baseOptions: { modelAssetPath: modelUrl },
-    })
-    .then(llm => {
-        llmInference = llm;
+    try {
+        llmInference = await LlmInference.createFromOptions(genaiFileset, {
+            baseOptions: { modelAssetPath: modelUrl },
+        });
         llmInference.generateResponse(playerText, displayPartialResults);
-    })
-    .catch(() => {
-        alert('Failed to initialize the task.');
-    });
+    } catch (error) {
+        console.error('Failed to initialize the task:', error); // エラー詳細を表示
+        alert('Failed to initialize the task. Check console for details.');
+    }
 }
 
 function countWordOccurrences(text, word) {
